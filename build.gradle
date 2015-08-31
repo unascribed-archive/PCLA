@@ -1,0 +1,21 @@
+buildscript {
+	repositories {
+		jcenter()
+	}
+	dependencies {
+		classpath 'org.bitbucket.shemnon.javafxplugin:gradle-javafx-plugin:8.1.1'
+	}
+}
+apply plugin: 'javafx'
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	compile 'com.google.guava:guava:18.0'
+}
+
+javafx {
+	mainClass = "com.unascribed.pcla.Bootstrap"
+}
