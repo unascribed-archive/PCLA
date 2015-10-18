@@ -1,0 +1,39 @@
+@format	SVG
+@src 	https://github.com/NitruxSA/breeze-icon-theme/archive/master.zip
+
+@prefix	breeze-icon-theme-master/Breeze/status/64/
+
+info		dialog-information
+warning		dialog-warning
+error		dialog-error
+question	dialog-question
+
+@prefix	breeze-icon-theme-master/Breeze/actions/16/
+
+no			window-close
+yes			dialog-ok-apply
+cancel		dialog-cancel
+
+exit		application-exit
+
+new-file	document-new
+open-file	document-open
+save-file	document-save
+
+print		document-print
+cut			edit-cut
+copy		edit-copy
+paste		edit-paste
+
+crop		transform-crop
+deselect	edit-select-none
+
+undo		edit-undo
+redo		edit-redo
+
+pixel-grid	view-grid
+
+
+select		select-rectangular	
+move-pixel	transform-move
+move-select	edit-select

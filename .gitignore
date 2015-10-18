@@ -49,3 +49,5 @@ local.properties
 
 .classpath
 .project
+/src/main/resources/icons/*/*.png
+/src/main/resources/icons/*/*.svg

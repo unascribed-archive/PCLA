@@ -1,0 +1,39 @@
+@format PNG
+@src	https://github.com/yusukekamiyamane/fugue-icons/archive/master.zip
+
+@prefix fugue-icons-master/bonus/icons-32/
+
+info		information
+warning		exclamation
+error		cross-circle
+question	question
+
+@prefix	fugue-icons-master/icons/
+
+no			prohibition
+yes			tick
+cancel		cross@gray
+
+exit		cross
+
+new-file	document--plus
+open-file	folder-open
+save-file	disk
+
+print		printer
+cut			scissors
+copy		document-copy
+paste		clipboard-paste
+
+crop		image-crop
+deselect	layer-select+cross-small
+
+undo		arrow-curve-180-left
+redo		arrow-curve
+
+pixel-grid	grid
+
+
+select		layer-select	
+move-pixel	arrow-move
+move-select	layer-select+cursor-small

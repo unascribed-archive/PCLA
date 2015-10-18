@@ -1,9 +1,22 @@
+import java.awt.Graphics2D;
+import java.awt.Image
+import java.awt.color.ColorSpace;
+import java.awt.image.BufferedImage
+import java.awt.image.BufferedImageOp
+import java.awt.image.ColorConvertOp;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+
+import javax.imageio.ImageIO;
+import javax.swing.GrayFilter;
+
 buildscript {
 	repositories {
 		jcenter()
 	}
 	dependencies {
 		classpath 'org.bitbucket.shemnon.javafxplugin:gradle-javafx-plugin:8.1.1'
+		classpath 'org.apache.xmlgraphics:batik-rasterizer:1.8'
 	}
 }
 apply plugin: 'javafx'
@@ -18,4 +31,87 @@ dependencies {
 
 javafx {
 	mainClass = "com.unascribed.pcla.Bootstrap"
+}
+
+void processIconMap(File f) {
+	File destDir = f.getParentFile();
+	File cacheDir = new File("${gradle.gradleUserHomeDir}/caches/pcla-icons/${f.getParentFile().getName()}");
+	cacheDir.mkdirs();
+	String format;
+	String prefix = "";
+	ZipFile zip;
+	f.eachLine {
+		String[] ln = it.replaceAll("\t+", "\t").replaceAll(" +", " ").replaceAll("[\t ]", " ").split(" ");
+		switch (ln[0]) {
+			case "@format":
+				format = ln[1];
+				break;
+			case "@prefix":
+				prefix = ln[1];
+				break;
+			case "@src":
+				new File(cacheDir, "dl.zip").with {
+					if (it.exists()) {
+						zip = new ZipFile(it);
+						return;
+					}
+					it.createNewFile();
+					it.withOutputStream { out ->
+						new URL(ln[1]).withInputStream { from -> out << from }
+					}
+					zip = new ZipFile(it);
+				}
+				break;
+			case "":
+				break;
+			default:
+				String dest = ln[0].trim()+".${format.toLowerCase()}";
+				String[] spec = ln[ln.length-1].trim().split("@");
+				String[] composition = spec[0].split("\\+");
+				String src = prefix+composition[0]+".${format.toLowerCase()}";
+				ZipEntry en = zip.getEntry(src);
+				if (format.equalsIgnoreCase("png")) {
+					BufferedImage img = ImageIO.read(zip.getInputStream(en));
+					if (spec.contains("gray")) {
+						BufferedImageOp op = new ColorConvertOp(ColorSpace.getInstance(ColorSpace.CS_GRAY), null);
+						op.filter(img, img);
+					}
+					Graphics2D graphics = img.createGraphics();
+					for (int i = 1; i < composition.length; i++) {
+						ZipEntry compen = zip.getEntry(prefix+composition[i]+".${format.toLowerCase()}");
+						Image comp = ImageIO.read(zip.getInputStream(compen));
+						graphics.drawImage(comp, 5, 3, null);
+					}
+					graphics.dispose();
+					ImageIO.write(img, "PNG", new File(destDir, dest));
+				} else {
+					new File(destDir, dest).withOutputStream {
+						it << zip.getInputStream(en)
+					} 
+				}
+				break;
+		}
+	}
+}
+
+task extractIcons {
+	processIconMap(new File("src/main/resources/icons/breeze/map"))
+	processIconMap(new File("src/main/resources/icons/glass/map"))
+}
+
+task rasterize {
+	dependsOn extractIcons
+	fileTree('src/main/resources/icons').visit { f ->
+		if (f.name.endsWith(".svg")) {
+			exec {
+				workingDir 'src/main/resources/icons'
+				commandLine 'inkscape', f.path, '-e', f.path.replace(".svg", ".png")
+			}
+			f.file.delete()
+		}
+	}
+}
+
+task icons {
+	dependsOn rasterize
 }

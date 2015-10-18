@@ -1,5 +1,5 @@
 # PCLA
-PCLA (pronounced 'pick-lah') is a raster image editor, based on JavaFX and Java 8.
+PCLA (pronounced 'pick-lah') is a cross-platform raster image editor, based on JavaFX and Java 8.
 
 It is designed as a replacement for Paint.NET, originally written because the
 author was tired of Windows' poor behavior as a guest operating system under
@@ -23,5 +23,10 @@ It happened to have a picture-like pronunciation, which is one of the reasons I
 chose it over some other acronym.
 
 ## Where'd you get those nifty icons?
-[Yusuke Kamiyamane](http://p.yusukekamiyamane.com/)'s Fugue icon set. I'm surprised you haven't heard
-of it yet, it's quite possibly the best free icon set, and is used by tons of projects already.
+For the Fugue theme:
+
+ - [Yusuke Kamiyamane](http://p.yusukekamiyamane.com/)'s Fugue icon set. (Licensed under CC-BY-3.0)
+
+For the Breeze theme:
+
+ - The KDE [Breeze](https://github.com/NitruxSA/breeze-icon-theme) icon set. (Licensed under LGPLv3)
