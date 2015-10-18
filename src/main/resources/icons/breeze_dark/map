@@ -1,14 +1,16 @@
 @format	SVG
 @src	https://github.com/NitruxSA/breeze-icon-theme/archive/master.zip
 
-@prefix	breeze-icon-theme-master/Breeze/status/64/
+@prefix   breeze-icon-theme-master/Breeze%20Dark/status/64/
+@fallback breeze-icon-theme-master/Breeze/status/64/
 
 info		dialog-information
 warning		dialog-warning
 error		dialog-error
 question	dialog-question
 
-@prefix	breeze-icon-theme-master/Breeze/actions/24/
+@prefix   breeze-icon-theme-master/Breeze%20Dark/actions/24/
+@fallback breeze-icon-theme-master/Breeze/actions/24/
 
 no			window-close
 yes			dialog-ok-apply

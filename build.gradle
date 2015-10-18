@@ -3,7 +3,8 @@ import java.awt.Image
 import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage
 import java.awt.image.BufferedImageOp
-import java.awt.image.ColorConvertOp;
+import java.awt.image.ColorConvertOp
+import java.nio.file.NoSuchFileException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -16,7 +17,6 @@ buildscript {
 	}
 	dependencies {
 		classpath 'org.bitbucket.shemnon.javafxplugin:gradle-javafx-plugin:8.1.1'
-		classpath 'org.apache.xmlgraphics:batik-rasterizer:1.8'
 	}
 }
 apply plugin: 'javafx'
@@ -39,15 +39,16 @@ void processIconMap(File f) {
 	cacheDir.mkdirs();
 	String format;
 	String prefix = "";
+	String fallbackPrefix = "";
 	ZipFile zip;
 	f.eachLine {
 		String[] ln = it.replaceAll("\t+", "\t").replaceAll(" +", " ").replaceAll("[\t ]", " ").split(" ");
 		switch (ln[0]) {
 			case "@format":
-				format = ln[1];
+				format = ln[1].replace("%20", " ");
 				break;
 			case "@prefix":
-				prefix = ln[1];
+				prefix = ln[1].replace("%20", " ");
 				break;
 			case "@src":
 				new File(cacheDir, "dl.zip").with {
@@ -62,14 +63,22 @@ void processIconMap(File f) {
 					zip = new ZipFile(it);
 				}
 				break;
+			case "@fallback":
+				fallbackPrefix = ln[1].replace("%20", " ");
 			case "":
 				break;
 			default:
 				String dest = ln[0].trim()+".${format.toLowerCase()}";
 				String[] spec = ln[ln.length-1].trim().split("@");
 				String[] composition = spec[0].split("\\+");
-				String src = prefix+composition[0]+".${format.toLowerCase()}";
-				ZipEntry en = zip.getEntry(src);
+				String src = composition[0]+".${format.toLowerCase()}";
+				ZipEntry en = zip.getEntry(prefix+src);
+				if (en == null) {
+					en = zip.getEntry(fallbackPrefix+src);
+					if (en == null) {
+						throw new NoSuchFileException(prefix+src+" || "+fallbackPrefix+src);
+					}
+				}
 				if (format.equalsIgnoreCase("png")) {
 					BufferedImage img = ImageIO.read(zip.getInputStream(en));
 					if (spec.contains("gray")) {
@@ -79,6 +88,9 @@ void processIconMap(File f) {
 					Graphics2D graphics = img.createGraphics();
 					for (int i = 1; i < composition.length; i++) {
 						ZipEntry compen = zip.getEntry(prefix+composition[i]+".${format.toLowerCase()}");
+						if (compen == null) {
+							compen = zip.getEntry(fallbackPrefix+composition[i]+".${format.toLowerCase()}");
+						}
 						Image comp = ImageIO.read(zip.getInputStream(compen));
 						graphics.drawImage(comp, 5, 3, null);
 					}
@@ -87,20 +99,20 @@ void processIconMap(File f) {
 				} else {
 					new File(destDir, dest).withOutputStream {
 						it << zip.getInputStream(en)
-					} 
+					}
 				}
 				break;
 		}
 	}
 }
 
-task extractIcons {
+task extractIcons << {
 	processIconMap(new File("src/main/resources/icons/breeze/map"))
+	processIconMap(new File("src/main/resources/icons/breeze_dark/map"))
 	processIconMap(new File("src/main/resources/icons/glass/map"))
 }
 
-task rasterize {
-	dependsOn extractIcons
+task rasterize << {
 	fileTree('src/main/resources/icons').visit { f ->
 		if (f.name.endsWith(".svg")) {
 			exec {
@@ -112,6 +124,8 @@ task rasterize {
 	}
 }
 
-task icons {
-	dependsOn rasterize
+rasterize.dependsOn extractIcons
+
+task cleanIconCaches << {
+	new File("${gradle.gradleUserHomeDir}/caches/pcla-icons/").deleteDir();
 }
